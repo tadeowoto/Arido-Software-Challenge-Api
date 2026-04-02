@@ -1,0 +1,25 @@
+package com.arido.manufacturing_api.controller;
+
+import com.arido.manufacturing_api.model.SecurityGroup;
+import com.arido.manufacturing_api.service.SecurityGroupService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/groups")
+public class SecurityGroupController {
+
+    private final SecurityGroupService groupService;
+
+    @GetMapping("/{username}")
+    public ResponseEntity<List<SecurityGroup>> getSecurityGroups(@PathVariable String username) {
+        return ResponseEntity.ok(groupService.listByUsername(username));
+    }
+}
