@@ -23,12 +23,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> listAllUsers() {
-        return List.of();
+        return repository.findAll();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return Optional.empty();
+        return repository.findByUsername(username);
     }
 
     @Override
