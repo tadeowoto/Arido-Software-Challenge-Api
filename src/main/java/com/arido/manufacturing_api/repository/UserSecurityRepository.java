@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserSecurityInterface extends JpaRepository<UserSecurity, UserSecurityKey> {
+public interface UserSecurityRepository extends JpaRepository<UserSecurity, UserSecurityKey> {
 
     List<UserSecurity> findByGroupId(Long groupId);
 }
