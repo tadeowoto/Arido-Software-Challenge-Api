@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface UserSecurityRepository extends JpaRepository<UserSecurity, UserSecurityKey> {
-    List<UserSecurity> findByGroupId(Long groupId);
+    List<UserSecurity> findByGroupGroupId(Long groupId);
 }
