@@ -1,5 +1,7 @@
 package com.arido.manufacturing_api.controller;
 
+import com.arido.manufacturing_api.dto.UserDTO;
+import com.arido.manufacturing_api.dto.UserRegistrationDTO;
 import com.arido.manufacturing_api.model.User;
 import com.arido.manufacturing_api.service.UserService;
 import lombok.AllArgsConstructor;
@@ -17,19 +19,19 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<UserDTO>> getAllUsers(){
         return ResponseEntity.ok(userService.listAllUsers());
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable  String username){
+    public ResponseEntity<UserDTO> getUserByUsername(@PathVariable  String username){
         return userService.findByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(User u){
+    public ResponseEntity<?> createUser(UserRegistrationDTO u){
         return new ResponseEntity<>(userService.createUser(u), HttpStatus.CREATED);
     }
 

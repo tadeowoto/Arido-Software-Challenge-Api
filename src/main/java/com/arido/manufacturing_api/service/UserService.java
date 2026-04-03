@@ -1,5 +1,7 @@
 package com.arido.manufacturing_api.service;
 
+import com.arido.manufacturing_api.dto.UserDTO;
+import com.arido.manufacturing_api.dto.UserRegistrationDTO;
 import com.arido.manufacturing_api.model.User;
 import com.arido.manufacturing_api.model.UserStatus;
 
@@ -8,11 +10,11 @@ import java.util.Optional;
 
 public interface UserService {
 
-    User createUser(User u);
+    UserDTO createUser(UserRegistrationDTO u);
 
-    List<User> listAllUsers();
+    List<UserDTO> listAllUsers();
 
-    Optional<User> findByUsername(String username);
+    Optional<UserDTO> findByUsername(String username);
 
-    User changeUserState(Long userId, UserStatus newStatus);
+    UserDTO changeUserState(Long userId, UserStatus newStatus);
 }

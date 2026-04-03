@@ -1,6 +1,7 @@
 package com.arido.manufacturing_api.mapper;
 
 import com.arido.manufacturing_api.dto.UserDTO;
+import com.arido.manufacturing_api.dto.UserRegistrationDTO;
 import com.arido.manufacturing_api.model.User;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,5 +19,9 @@ public class UserMapper {
 
     public UserDTO toDTO(User user){
         return modelMapper.map(user, UserDTO.class);
+    }
+
+    public User toEntity(UserRegistrationDTO userRDTO){
+        return modelMapper.map(userRDTO, User.class);
     }
 }
