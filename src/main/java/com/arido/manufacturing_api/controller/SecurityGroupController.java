@@ -1,5 +1,6 @@
 package com.arido.manufacturing_api.controller;
 
+import com.arido.manufacturing_api.dto.SecurityGroupDTO;
 import com.arido.manufacturing_api.model.SecurityGroup;
 import com.arido.manufacturing_api.service.SecurityGroupService;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class SecurityGroupController {
     private final SecurityGroupService groupService;
 
     @GetMapping("/{username}")
-    public ResponseEntity<List<SecurityGroup>> getSecurityGroups(@PathVariable String username) {
+    public ResponseEntity<List<SecurityGroupDTO>> getSecurityGroups(@PathVariable String username) {
         return ResponseEntity.ok(groupService.listByUsername(username));
     }
 }
