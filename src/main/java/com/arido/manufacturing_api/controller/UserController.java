@@ -2,6 +2,7 @@ package com.arido.manufacturing_api.controller;
 
 import com.arido.manufacturing_api.dto.UserDTO;
 import com.arido.manufacturing_api.dto.UserRegistrationDTO;
+import com.arido.manufacturing_api.dto.UserWithAccessDTO;
 import com.arido.manufacturing_api.model.User;
 import com.arido.manufacturing_api.service.UserService;
 import jakarta.validation.Valid;
@@ -29,6 +30,11 @@ public class UserController {
         return userService.findByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/with-access")
+    public ResponseEntity<List<UserWithAccessDTO>> getUsersWithAccess() {
+        return ResponseEntity.ok(userService.listAllUsersWithAccess());
     }
 
     @PostMapping

@@ -2,6 +2,7 @@ package com.arido.manufacturing_api.service;
 
 import com.arido.manufacturing_api.dto.UserDTO;
 import com.arido.manufacturing_api.dto.UserRegistrationDTO;
+import com.arido.manufacturing_api.dto.UserWithAccessDTO;
 import com.arido.manufacturing_api.model.User;
 import com.arido.manufacturing_api.model.UserStatus;
 
@@ -15,6 +16,8 @@ public interface UserService {
     List<UserDTO> listAllUsers();
 
     Optional<UserDTO> findByUsername(String username);
+
+    List<UserWithAccessDTO> listAllUsersWithAccess();
 
     UserDTO changeUserState(Long userId, UserStatus newStatus);
 }
