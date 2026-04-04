@@ -4,6 +4,7 @@ import com.arido.manufacturing_api.dto.UserDTO;
 import com.arido.manufacturing_api.dto.UserRegistrationDTO;
 import com.arido.manufacturing_api.model.User;
 import com.arido.manufacturing_api.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(UserRegistrationDTO u){
-        return new ResponseEntity<>(userService.createUser(u), HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserRegistrationDTO u){
+        UserDTO userCreated = userService.createUser(u);
+        return new ResponseEntity<>(userCreated, HttpStatus.CREATED);
     }
 
 }
