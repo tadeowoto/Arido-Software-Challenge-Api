@@ -4,6 +4,8 @@ import com.arido.manufacturing_api.dto.UserDTO;
 import com.arido.manufacturing_api.dto.UserGroupAccessDTO;
 import com.arido.manufacturing_api.dto.UserRegistrationDTO;
 import com.arido.manufacturing_api.dto.UserWithAccessDTO;
+import com.arido.manufacturing_api.exceptions.BadRequestException;
+import com.arido.manufacturing_api.exceptions.ResourceNotFoundException;
 import com.arido.manufacturing_api.mapper.UserMapper;
 import com.arido.manufacturing_api.model.*;
 import com.arido.manufacturing_api.repository.AccessLevelRepository;
@@ -40,14 +42,18 @@ public class UserServiceImpl implements UserService {
         user.setPassword(u.getPassword());
         user.setStatus(u.getStatus());
 
+        if (repository.existsByUsername(u.getUsername())) {
+            throw new BadRequestException("El nombre de usuario '" + u.getUsername() + "' ya está en uso");
+        }
+
         User savedUser = repository.save(user);
 
 
         SecurityGroup group = groupRepository.findById(u.getGroupId())
-                .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
 
         AccessLevel level = accessLevelRepository.findById(u.getAccessLevelId())
-                .orElseThrow(() -> new EntityNotFoundException("Nivel de acceso no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Nivel de acceso no encontrado"));
 
         UserSecurity userSecurity = new UserSecurity();
 
@@ -130,7 +136,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO changeUserState(Long userId, UserStatus newStatus) {
 
         User user = repository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario con el id " + userId + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario con el id " + userId + " no encontrado"));
 
         if (newStatus == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
