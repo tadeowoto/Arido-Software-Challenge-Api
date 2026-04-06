@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-    UserDTO createUser(UserRegistrationDTO u);
+    UserWithAccessDTO createUser(UserRegistrationDTO u);
 
     List<UserDTO> listAllUsers();
 

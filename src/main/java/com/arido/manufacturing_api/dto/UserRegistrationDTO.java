@@ -19,4 +19,10 @@ public class UserRegistrationDTO {
     private String password;
     @NotNull
     private UserStatus status;
+
+    @NotNull
+    private Long groupId;
+
+    @NotNull
+    private Long accessLevelId;
 }
