@@ -1,9 +1,7 @@
 package com.arido.manufacturing_api.controller;
 
 import com.arido.manufacturing_api.dto.SecurityGroupDTO;
-import com.arido.manufacturing_api.exceptions.BadRequestException;
 import com.arido.manufacturing_api.exceptions.ResourceNotFoundException;
-import com.arido.manufacturing_api.model.SecurityGroup;
 import com.arido.manufacturing_api.service.SecurityGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
