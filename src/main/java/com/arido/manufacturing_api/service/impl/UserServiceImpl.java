@@ -147,4 +147,33 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toDTO(updatedUser);
     }
+
+
+    public Optional<UserWithAccessDTO> findUserWithAccessByUsername(String username) {
+
+        List<UserSecurity> relations = userSecurityRepository.findByUsernameWithDetails(username);
+        if (relations.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = relations.get(0).getUser();
+
+        List<UserGroupAccessDTO> groups = relations.stream()
+                .map(rel -> new UserGroupAccessDTO(
+                        rel.getGroup().getName(),
+                        rel.getAccessLevel().getName()
+                ))
+                .toList();
+        
+        UserWithAccessDTO dto = new UserWithAccessDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getStatus(),
+                user.getCreatedAt(),
+                groups
+        );
+
+        return Optional.of(dto);
+    }
+
 }

@@ -20,4 +20,6 @@ public interface UserService {
     List<UserWithAccessDTO> listAllUsersWithAccess();
 
     UserDTO changeUserState(Long userId, UserStatus newStatus);
+
+    Optional<UserWithAccessDTO> findUserWithAccessByUsername(String username);
 }

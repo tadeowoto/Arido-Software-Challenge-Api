@@ -45,6 +45,13 @@ public class UserController {
     public ResponseEntity<List<UserWithAccessDTO>> getUsersWithAccess() {
         return ResponseEntity.ok(userService.listAllUsersWithAccess());
     }
+    @GetMapping("/with-access/{username}")
+    public ResponseEntity<UserWithAccessDTO> getUserWithAccess(@PathVariable String username) {
+
+        return userService.findUserWithAccessByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @PostMapping
     public ResponseEntity<UserWithAccessDTO> createUser(@Valid @RequestBody UserRegistrationDTO u) {
