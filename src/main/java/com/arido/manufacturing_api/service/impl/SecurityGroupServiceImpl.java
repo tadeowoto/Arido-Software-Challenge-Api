@@ -25,4 +25,12 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
                 .map(securityGroupMapper::toDTO)
                 .toList();
     }
+
+    @Override
+    public List<SecurityGroupDTO> listAll() {
+        List<SecurityGroup> list = repository.findAll();
+        return list.stream()
+                    .map(securityGroupMapper::toDTO)
+                    .toList();
+    }
 }

@@ -10,4 +10,6 @@ public interface SecurityGroupService {
 
     List<SecurityGroupDTO> listByUsername(String username);
 
+    List<SecurityGroupDTO> listAll();
+
 }
