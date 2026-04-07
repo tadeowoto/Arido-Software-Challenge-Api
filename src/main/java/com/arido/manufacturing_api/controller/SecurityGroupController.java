@@ -20,6 +20,12 @@ public class SecurityGroupController {
 
     private final SecurityGroupService groupService;
 
+
+    @GetMapping
+    public ResponseEntity<List<SecurityGroupDTO>> listAllSecurityGroups(){
+        return ResponseEntity.ok(groupService.listAll());
+    }
+
     @GetMapping("/{username}")
     public ResponseEntity<List<SecurityGroupDTO>> getSecurityGroups(@PathVariable String username) {
 
