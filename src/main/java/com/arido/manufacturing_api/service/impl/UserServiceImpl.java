@@ -37,51 +37,52 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserWithAccessDTO createUser(UserRegistrationDTO u) {
 
+        if (repository.existsByUsername(u.getUsername())) {
+            throw new BadRequestException("El nombre de usuario '" + u.getUsername() + "' ya está en uso");
+        }
+
+
         User user = new User();
         user.setUsername(u.getUsername());
         user.setPassword(u.getPassword());
         user.setStatus(u.getStatus());
 
-        if (repository.existsByUsername(u.getUsername())) {
-            throw new BadRequestException("El nombre de usuario '" + u.getUsername() + "' ya está en uso");
-        }
-
         User savedUser = repository.save(user);
 
 
-        SecurityGroup group = groupRepository.findById(u.getGroupId())
-                .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
+        List<UserGroupAccessDTO> responseGroups = u.getSecurityGroups().stream().map(groupDTO -> {
 
-        AccessLevel level = accessLevelRepository.findById(u.getAccessLevelId())
-                .orElseThrow(() -> new ResourceNotFoundException("Nivel de acceso no encontrado"));
 
-        UserSecurity userSecurity = new UserSecurity();
+            if (groupDTO.getGroupId() == null || groupDTO.getAccessLevelId() == null) {
+                throw new BadRequestException("ID de grupo o nivel de acceso no pueden ser nulos");
+            }
 
-        UserSecurityKey key = new UserSecurityKey(
-                savedUser.getUserId(),
-                group.getGroupId()
-        );
+            SecurityGroup group = groupRepository.findById(groupDTO.getGroupId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
 
-        userSecurity.setId(key);
-        userSecurity.setUser(savedUser);
-        userSecurity.setGroup(group);
-        userSecurity.setAccessLevel(level);
+            AccessLevel level = accessLevelRepository.findById(groupDTO.getAccessLevelId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Nivel de acceso no encontrado"));
 
-        userSecurityRepository.save(userSecurity);
 
-        List<UserGroupAccessDTO> groups = List.of(
-                new UserGroupAccessDTO(
-                        group.getName(),
-                        level.getName()
-                )
-        );
+            UserSecurity userSecurity = new UserSecurity();
+            UserSecurityKey key = new UserSecurityKey(savedUser.getUserId(), group.getGroupId());
+
+            userSecurity.setId(key);
+            userSecurity.setUser(savedUser);
+            userSecurity.setGroup(group);
+            userSecurity.setAccessLevel(level);
+
+            userSecurityRepository.save(userSecurity);
+
+            return new UserGroupAccessDTO(group.getName(), level.getName());
+        }).toList();
 
         return new UserWithAccessDTO(
                 savedUser.getUserId(),
                 savedUser.getUsername(),
                 savedUser.getStatus(),
                 savedUser.getCreatedAt(),
-                groups
+                responseGroups
         );
     }
 
