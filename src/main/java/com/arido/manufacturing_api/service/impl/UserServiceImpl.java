@@ -101,18 +101,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserWithAccessDTO> listAllUsersWithAccess() {
+        List<User> allUsers = repository.findAll();
 
-        List<UserSecurity> relations = userSecurityRepository.findAllWithDetails();
+        List<UserSecurity> allRelations = userSecurityRepository.findAllWithDetails();
 
+        Map<Long, List<UserSecurity>> relationsByUserId = allRelations.stream()
+                .collect(Collectors.groupingBy(rel -> rel.getUser().getUserId()));
 
-        Map<User, List<UserSecurity>> grouped =
-                relations.stream()
-                        .collect(Collectors.groupingBy(UserSecurity::getUser));
+        return allUsers.stream().map(user -> {
 
-
-        return grouped.entrySet().stream().map(entry -> {
-            User user = entry.getKey();
-            List<UserGroupAccessDTO> groups = entry.getValue().stream()
+            List<UserSecurity> userRelations = relationsByUserId.getOrDefault(user.getUserId(), List.of());
+            List<UserGroupAccessDTO> groups = userRelations.stream()
                     .map(rel -> new UserGroupAccessDTO(
                             rel.getGroup().getName(),
                             rel.getAccessLevel().getName()
@@ -126,7 +125,6 @@ public class UserServiceImpl implements UserService {
                     user.getCreatedAt(),
                     groups
             );
-
         }).toList();
     }
 
