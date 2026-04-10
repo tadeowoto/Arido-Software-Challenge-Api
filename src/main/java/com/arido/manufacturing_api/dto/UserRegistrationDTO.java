@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,8 +22,6 @@ public class UserRegistrationDTO {
     private UserStatus status;
 
     @NotNull
-    private Long groupId;
-
-    @NotNull
-    private Long accessLevelId;
+    @Size(min = 1, message = "Debe asignar al menos un grupo de seguridad")
+    private List<GroupAccessRequestDTO> securityGroups;
 }

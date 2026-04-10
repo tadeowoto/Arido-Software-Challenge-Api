@@ -19,6 +19,7 @@ import java.util.Optional;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;
@@ -44,6 +45,13 @@ public class UserController {
     @GetMapping("/with-access")
     public ResponseEntity<List<UserWithAccessDTO>> getUsersWithAccess() {
         return ResponseEntity.ok(userService.listAllUsersWithAccess());
+    }
+    @GetMapping("/with-access/{username}")
+    public ResponseEntity<UserWithAccessDTO> getUserWithAccess(@PathVariable String username) {
+
+        return userService.findUserWithAccessByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping

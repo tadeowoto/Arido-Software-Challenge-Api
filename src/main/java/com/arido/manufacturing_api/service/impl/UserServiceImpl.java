@@ -37,51 +37,52 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserWithAccessDTO createUser(UserRegistrationDTO u) {
 
+        if (repository.existsByUsername(u.getUsername())) {
+            throw new BadRequestException("El nombre de usuario '" + u.getUsername() + "' ya está en uso");
+        }
+
+
         User user = new User();
         user.setUsername(u.getUsername());
         user.setPassword(u.getPassword());
         user.setStatus(u.getStatus());
 
-        if (repository.existsByUsername(u.getUsername())) {
-            throw new BadRequestException("El nombre de usuario '" + u.getUsername() + "' ya está en uso");
-        }
-
         User savedUser = repository.save(user);
 
 
-        SecurityGroup group = groupRepository.findById(u.getGroupId())
-                .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
+        List<UserGroupAccessDTO> responseGroups = u.getSecurityGroups().stream().map(groupDTO -> {
 
-        AccessLevel level = accessLevelRepository.findById(u.getAccessLevelId())
-                .orElseThrow(() -> new ResourceNotFoundException("Nivel de acceso no encontrado"));
 
-        UserSecurity userSecurity = new UserSecurity();
+            if (groupDTO.getGroupId() == null || groupDTO.getAccessLevelId() == null) {
+                throw new BadRequestException("ID de grupo o nivel de acceso no pueden ser nulos");
+            }
 
-        UserSecurityKey key = new UserSecurityKey(
-                savedUser.getUserId(),
-                group.getGroupId()
-        );
+            SecurityGroup group = groupRepository.findById(groupDTO.getGroupId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
 
-        userSecurity.setId(key);
-        userSecurity.setUser(savedUser);
-        userSecurity.setGroup(group);
-        userSecurity.setAccessLevel(level);
+            AccessLevel level = accessLevelRepository.findById(groupDTO.getAccessLevelId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Nivel de acceso no encontrado"));
 
-        userSecurityRepository.save(userSecurity);
 
-        List<UserGroupAccessDTO> groups = List.of(
-                new UserGroupAccessDTO(
-                        group.getName(),
-                        level.getName()
-                )
-        );
+            UserSecurity userSecurity = new UserSecurity();
+            UserSecurityKey key = new UserSecurityKey(savedUser.getUserId(), group.getGroupId());
+
+            userSecurity.setId(key);
+            userSecurity.setUser(savedUser);
+            userSecurity.setGroup(group);
+            userSecurity.setAccessLevel(level);
+
+            userSecurityRepository.save(userSecurity);
+
+            return new UserGroupAccessDTO(group.getName(), level.getName());
+        }).toList();
 
         return new UserWithAccessDTO(
                 savedUser.getUserId(),
                 savedUser.getUsername(),
                 savedUser.getStatus(),
                 savedUser.getCreatedAt(),
-                groups
+                responseGroups
         );
     }
 
@@ -101,18 +102,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserWithAccessDTO> listAllUsersWithAccess() {
+        List<User> allUsers = repository.findAll();
 
-        List<UserSecurity> relations = userSecurityRepository.findAllWithDetails();
+        List<UserSecurity> allRelations = userSecurityRepository.findAllWithDetails();
 
+        Map<Long, List<UserSecurity>> relationsByUserId = allRelations.stream()
+                .collect(Collectors.groupingBy(rel -> rel.getUser().getUserId()));
 
-        Map<User, List<UserSecurity>> grouped =
-                relations.stream()
-                        .collect(Collectors.groupingBy(UserSecurity::getUser));
+        return allUsers.stream().map(user -> {
 
-
-        return grouped.entrySet().stream().map(entry -> {
-            User user = entry.getKey();
-            List<UserGroupAccessDTO> groups = entry.getValue().stream()
+            List<UserSecurity> userRelations = relationsByUserId.getOrDefault(user.getUserId(), List.of());
+            List<UserGroupAccessDTO> groups = userRelations.stream()
                     .map(rel -> new UserGroupAccessDTO(
                             rel.getGroup().getName(),
                             rel.getAccessLevel().getName()
@@ -126,7 +126,6 @@ public class UserServiceImpl implements UserService {
                     user.getCreatedAt(),
                     groups
             );
-
         }).toList();
     }
 
@@ -147,4 +146,33 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toDTO(updatedUser);
     }
+
+
+    public Optional<UserWithAccessDTO> findUserWithAccessByUsername(String username) {
+
+        List<UserSecurity> relations = userSecurityRepository.findByUsernameWithDetails(username);
+        if (relations.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = relations.get(0).getUser();
+
+        List<UserGroupAccessDTO> groups = relations.stream()
+                .map(rel -> new UserGroupAccessDTO(
+                        rel.getGroup().getName(),
+                        rel.getAccessLevel().getName()
+                ))
+                .toList();
+        
+        UserWithAccessDTO dto = new UserWithAccessDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getStatus(),
+                user.getCreatedAt(),
+                groups
+        );
+
+        return Optional.of(dto);
+    }
+
 }
